@@ -99,3 +99,13 @@ ref.on("value",(snapshot) => {
         return true
     })
 })
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'OK'
+  })
+})
+
+app.listen(port, () => {
+  console.log(`Server is listening on ${PORT}`)
+})
