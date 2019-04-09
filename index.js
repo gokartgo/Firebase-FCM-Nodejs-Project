@@ -41,10 +41,10 @@ function getAccessToken() {
   })
 }
 
-async function init() {
+function manageBody(token) {
   const body = {
     message: {
-      token: deviceToken[0],
+      token,
       data: { key: 'value' },
       notification: {
         title: 'Product In Shelve Empty',
@@ -66,17 +66,23 @@ async function init() {
       },
     }
   }
+  return body
+}
+
+async function init() {
+  
 
   try {
     const accessToken = await getAccessToken()
     console.log('accessToken: ', accessToken)
-    const { data } = await axios.post(URL, JSON.stringify(body), {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`
-      }
+    await deviceToken.forEach((data) => {
+      axios.post(URL, JSON.stringify(manageBody(data)), {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
     })
-    console.log('name: ', data.name)
   } catch (err) {
     console.log('err: ', err.message)
   }
