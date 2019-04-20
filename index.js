@@ -102,7 +102,7 @@ ref.on("value",(snapshot) => {
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'OK'
+    server: 'is running'
   })
 })
 
