@@ -92,7 +92,7 @@ var db = admin.database()
 var ref = db.ref("product")
 ref.on("value",(snapshot) => {
     Object.keys(snapshot.val()).every((data) => {
-        if(snapshot.val()[data].amount == 1){
+        if(snapshot.val()[data].amount == 0){
             init()
             return false
         }
