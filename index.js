@@ -20,7 +20,7 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: firebaseConfig.project_id,
     clientEmail: firebaseConfig.client_email,
-    privateKey: firebaseConfig.private_key,
+    privateKey: firebaseConfig.private_key.replace(/\\n/g, '\n'),
   }),
   databaseURL: databaseURL
 })
@@ -30,7 +30,7 @@ function getAccessToken() {
     var jwtClient = new google.auth.JWT(
       firebaseConfig.client_email,
       null,
-      firebaseConfig.private_key,
+      firebaseConfig.private_key.replace(/\\n/g, '\n'),
       SCOPES,
       null
     )
