@@ -14,99 +14,94 @@ var app = require('express')();
 /* ใช้ port 7777 หรือจะส่งเข้ามาตอนรัน app ก็ได้ */
 var port = process.env.PORT || 7777;
 
-// admin.initializeApp({
-//   credential: admin.credential.cert({
-//     projectId: process.env.PROJECT_ID || firebaseConfig.project_id,
-//     clientEmail: process.env.CLIENT_EMAIL || firebaseConfig.client_email,
-//     privateKey: process.env.PRIVATE_KEY || firebaseConfig.private_key
-//   }),
-//   databaseURL: databaseURL
-// })
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId: firebaseConfig.project_id,
+    clientEmail: firebaseConfig.client_email,
+    privateKey: firebaseConfig.private_key
+  }),
+  databaseURL: databaseURL
+})
 
-// function getAccessToken() {
-//   return new Promise(function (resolve, reject) {
-//     var client_email = process.env.CLIENT_EMAIL || firebaseConfig.client_email
-//     var private_key = process.env.PRIVATE_KEY || firebaseConfig.private_key
-//     var jwtClient = new google.auth.JWT(
-//       client_email,
-//       null,
-//       private_key,
-//       SCOPES,
-//       null
-//     )
-//     jwtClient.authorize(function (err, tokens) {
-//       if (err) {
-//         reject(err)
-//         return
-//       }
-//       resolve(tokens.access_token)
-//     })
-//   })
-// }
+function getAccessToken() {
+  return new Promise(function (resolve, reject) {
+    var client_email = firebaseConfig.client_email
+    var private_key = firebaseConfig.private_key
+    var jwtClient = new google.auth.JWT(
+      client_email,
+      null,
+      private_key,
+      SCOPES,
+      null
+    )
+    jwtClient.authorize(function (err, tokens) {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(tokens.access_token)
+    })
+  })
+}
 
-// function manageBody(token) {
-//   const body = {
-//     message: {
-//       token,
-//       data: { key: 'value' },
-//       notification: {
-//         title: 'Product In Shelve Empty',
-//         body: 'Add Product To Shelve'
-//       },
-//       android: {
-//         notification: {
-//           icon: 'shelve',
-//           sound: 'default'
-//         },
-//       },
-//       webpush: {
-//         headers: {
-//           Urgency: 'high'
-//         },
-//         notification: {
-//           requireInteraction: 'true'
-//         }
-//       },
-//     }
-//   }
-//   return body
-// }
+function manageBody(token) {
+  const body = {
+    message: {
+      token,
+      data: { key: 'value' },
+      notification: {
+        title: 'Product In Shelve Empty',
+        body: 'Add Product To Shelve'
+      },
+      android: {
+        notification: {
+          icon: 'shelve',
+          sound: 'default'
+        },
+      },
+      webpush: {
+        headers: {
+          Urgency: 'high'
+        },
+        notification: {
+          requireInteraction: 'true'
+        }
+      },
+    }
+  }
+  return body
+}
 
-// async function init() {
-//   try {
-//     const accessToken = await getAccessToken()
-//     console.log('accessToken: ', accessToken)
-//     await deviceToken.forEach((data) => {
-//       axios.post(URL, JSON.stringify(manageBody(data)), {
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${accessToken}`
-//         }
-//       })
-//     })
-//   } catch (err) {
-//     console.log('err: ', err.message)
-//   }
-// }
+async function init() {
 
-// var db = admin.database()
-// var ref = db.ref("product")
-// ref.on("value", (snapshot) => {
-//   Object.keys(snapshot.val()).every((data) => {
-//     if (snapshot.val()[data].amount == 0) {
-//       init()
-//       return false
-//     }
-//     return true
-//   })
-// })
 
-console.log('process env product id', process.env.PROJECT_ID)
-console.log('firebase config profuct id', firebaseConfig.project_id)
-console.log('process env client email', process.env.CLIENT_EMAIL)
-console.log('firebase config client email', firebaseConfig.client_email)
-console.log('process env private key', process.env.PRIVATE_KEY)
-console.log('firebase config private key', firebaseConfig.private_key)
+  try {
+    const accessToken = await getAccessToken()
+    console.log('accessToken: ', accessToken)
+    await deviceToken.forEach((data) => {
+      axios.post(URL, JSON.stringify(manageBody(data)), {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+    })
+  } catch (err) {
+    console.log('err: ', err.message)
+  }
+}
+
+var db = admin.database()
+var ref = db.ref("product")
+ref.on("value", (snapshot) => {
+  Object.keys(snapshot.val()).every((data) => {
+    if (snapshot.val()[data].amount == 0) {
+      init()
+      return false
+    }
+    return true
+  })
+})
 
 app.get('/', (req, res) => {
   res.json({
