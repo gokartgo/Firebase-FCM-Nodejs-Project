@@ -18,7 +18,7 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.PROJECT_ID || firebaseConfig.project_id,
     clientEmail: process.env.CLIENT_EMAIL || firebaseConfig.client_email,
-    privateKey: process.env.CLIENT_PRIVATE_KEY || firebaseConfig.private_key
+    privateKey: process.env.PRIVATE_KEY || firebaseConfig.private_key
   }),
   databaseURL: databaseURL
 })
@@ -26,7 +26,7 @@ admin.initializeApp({
 function getAccessToken() {
   return new Promise(function (resolve, reject) {
     var client_email = process.env.CLIENT_EMAIL || firebaseConfig.client_email
-    var private_key = process.env.CLIENT_PRIVATE_KEY || firebaseConfig.private_key
+    var private_key = process.env.PRIVATE_KEY || firebaseConfig.private_key
     var jwtClient = new google.auth.JWT(
       client_email,
       null,
