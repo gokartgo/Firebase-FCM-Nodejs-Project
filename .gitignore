@@ -6,9 +6,6 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 
-# dotenv
-.env
-
 # Firebase key
 project-iot-d2603-firebase-adminsdk*
 
@@ -68,4 +65,4 @@ node_modules/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+#.env
