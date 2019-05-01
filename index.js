@@ -1,37 +1,40 @@
 const admin = require('firebase-admin')
 const { google } = require('googleapis')
 const axios = require('axios')
-
+const firebaseConfig = require('./config-firebase')
 const MESSAGING_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging'
 const SCOPES = [MESSAGING_SCOPE]
-
-const serviceAccount = require('./project-iot-d2603-firebase-adminsdk-fr8hn-89dc277f59.json')
 const databaseURL = 'https://project-iot-d2603.firebaseio.com'
 const URL =
   'https://fcm.googleapis.com/v1/projects/project-iot-d2603/messages:send'
-  const deviceToken = ['ewyj9Kbsixo:APA91bGIllJwbfwkniIR4MP-AJumYBwiMV-Ug3Gu3Qb1y2Sw_Voa33RIkP8RCwzLnGP_NeioefcnwrvtC1E_x7XdQPnKNvIVLvfDf_mAOh-xqDzJI41OCRJLj0AtYokGn6LnuggDMv24','daajPRDp5gQ:APA91bFBXdlDgqzw1BBczTp9nEyvSqW8lqWSAmgKWcLZE1YbW7B_ciGSn8pV-fI5sWkUdWag0pdRWZYCRuss2Z1cxnk8IHA3PQ6VowtoO1TPXZpoPG6AdIDzK6v4_rzS6QMumigwBapa']
+const deviceToken = ['ewyj9Kbsixo:APA91bGIllJwbfwkniIR4MP-AJumYBwiMV-Ug3Gu3Qb1y2Sw_Voa33RIkP8RCwzLnGP_NeioefcnwrvtC1E_x7XdQPnKNvIVLvfDf_mAOh-xqDzJI41OCRJLj0AtYokGn6LnuggDMv24', 'daajPRDp5gQ:APA91bFBXdlDgqzw1BBczTp9nEyvSqW8lqWSAmgKWcLZE1YbW7B_ciGSn8pV-fI5sWkUdWag0pdRWZYCRuss2Z1cxnk8IHA3PQ6VowtoO1TPXZpoPG6AdIDzK6v4_rzS6QMumigwBapa']
 /* โหลด Express มาใช้งาน */
 var app = require('express')();
- 
+
 /* ใช้ port 7777 หรือจะส่งเข้ามาตอนรัน app ก็ได้ */
 var port = process.env.PORT || 7777;
-  
+
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert({
+    projectId: process.env.PROJECT_ID || firebaseConfig.project_id,
+    clientEmail: process.env.CLIENT_EMAIL || firebaseConfig.client_email,
+    privateKey: process.env.CLIENT_PRIVATE_KEY || firebaseConfig.private_key
+  }),
   databaseURL: databaseURL
 })
 
 function getAccessToken() {
-  return new Promise(function(resolve, reject) {
-    var key = serviceAccount
+  return new Promise(function (resolve, reject) {
+    var client_email = process.env.CLIENT_EMAIL || firebaseConfig.client_email
+    var private_key = process.env.CLIENT_PRIVATE_KEY || firebaseConfig.private_key
     var jwtClient = new google.auth.JWT(
-      key.client_email,
+      client_email,
       null,
-      key.private_key,
+      private_key,
       SCOPES,
       null
     )
-    jwtClient.authorize(function(err, tokens) {
+    jwtClient.authorize(function (err, tokens) {
       if (err) {
         reject(err)
         return
@@ -52,8 +55,8 @@ function manageBody(token) {
       },
       android: {
         notification: {
-            icon: 'shelve',
-            sound: 'default'
+          icon: 'shelve',
+          sound: 'default'
         },
       },
       webpush: {
@@ -70,7 +73,7 @@ function manageBody(token) {
 }
 
 async function init() {
-  
+
 
   try {
     const accessToken = await getAccessToken()
@@ -90,14 +93,14 @@ async function init() {
 
 var db = admin.database()
 var ref = db.ref("product")
-ref.on("value",(snapshot) => {
-    Object.keys(snapshot.val()).every((data) => {
-        if(snapshot.val()[data].amount == 0){
-            init()
-            return false
-        }
-        return true
-    })
+ref.on("value", (snapshot) => {
+  Object.keys(snapshot.val()).every((data) => {
+    if (snapshot.val()[data].amount == 0) {
+      init()
+      return false
+    }
+    return true
+  })
 })
 
 app.get('/', (req, res) => {

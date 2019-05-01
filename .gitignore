@@ -6,6 +6,12 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 
+# dotenv
+.env
+
+# Firebase key
+project-iot-d2603-firebase-adminsdk*
+
 # Firebase cache
 .firebase/
 
